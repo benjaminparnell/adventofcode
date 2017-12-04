@@ -1,10 +1,16 @@
 (require '[clojure.string :as str])
 
-(defn readFile [path]
+(defn readFileToLines [path]
   (str/split-lines (slurp path)))
 
-(defn validate [passphrase]
-  (== (count (str/split passphrase #" ")) (count (distinct (str/split passphrase #" ")))))
+(defn validate [distinctFn passphrase]
+  (== (count (str/split passphrase #" ")) (count (distinctFn passphrase))))
 
-(defn validateAll [path]
-  (count (filter true? (map validate (readFile path)))))
+(defn countValidPhrasesInFile [path distinctFn]
+  (count (filter (partial validate distinctFn) (readFileToLines path))))
+
+(defn allDistinctWords [passphrase]
+  (distinct (str/split passphrase #" ")))
+
+(defn noAnagrams [passphrase]
+  (distinct (map #(str (sort (str/split %1 #""))) (str/split passphrase #" "))))
