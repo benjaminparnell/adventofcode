@@ -14,8 +14,5 @@
       node
       (recur (parent-of node tree)))))
 
-(defn get-node [tree node]
-  (first (filter #(= (%1 :name) (node :name)) tree)))
-
 (defn make-program-tree [path]
   (map parse-program-line ((comp str/split-lines slurp) path)))
