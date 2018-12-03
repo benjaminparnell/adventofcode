@@ -1,11 +1,8 @@
 const fs = require("fs");
 const path = require("path");
+const { count } = require('../utils');
 
 const input = fs.readFileSync(path.join(__dirname, "input.txt"), "utf8");
-
-function count(arr, memo = {}) {
-  return arr.reduce((m, c) => ({ ...m, [c]: m[c] ? m[c] + 1 : 1 }), memo);
-}
 
 function calculateChecksum(boxIds) {
   return Object.values(
