@@ -21,7 +21,7 @@ function getOperandsAndPosition(intcode, position) {
 }
 
 function processIntcode(intcode) {
-  let newIntcode = intcode;
+  let newIntcode = intcode.slice();
 
   for (
     let currentPosition = 0;
@@ -51,5 +51,26 @@ function processIntcode(intcode) {
   return newIntcode[0];
 }
 
+function getRandomValue(max) {
+  return Math.floor(Math.random() * max);
+}
+
+function findNounAndVerb(intcode, desiredResult) {
+  let result = null;
+
+  while (result === null) {
+    let newIntcode = intcode.slice();
+    let [noun, verb] = [getRandomValue(100), getRandomValue(100)];
+    newIntcode[1] = noun;
+    newIntcode[2] = verb;
+
+    if (processIntcode(newIntcode) === desiredResult) {
+      result = 100 * noun + verb;
+    }
+  }
+
+  return result;
+}
+
 const intcode = parseIntcodeFromString(inputFile);
-console.log(processIntcode(intcode));
+console.log(findNounAndVerb(intcode, 19690720));
