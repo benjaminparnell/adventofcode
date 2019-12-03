@@ -8,21 +8,15 @@ const Directions = {
 };
 
 function mapInputLine(inputLine) {
-  return inputLine.split(",").map(instruction => {
-    const [direction, ...distance] = instruction;
-
-    return {
-      direction,
-      distance: parseInt(distance.join(""), 10)
-    };
-  });
+  return inputLine.split(",").map(([direction, ...distance]) => ({
+    direction,
+    distance: parseInt(distance.join(""), 10)
+  }));
 }
 
 function getCoordinatesForWire(wire) {
   const currentPosition = { x: 0, y: 0 };
-  const points = new Set();
-
-  for (let point of wire) {
+  return wire.reduce((coordinates, point) => {
     for (let index = 0; index < point.distance; index++) {
       switch (point.direction) {
         case Directions.UP: {
@@ -42,35 +36,44 @@ function getCoordinatesForWire(wire) {
           break;
         }
       }
-      points.add(`${currentPosition.x},${currentPosition.y}`);
+      coordinates.push(`${currentPosition.x},${currentPosition.y}`);
     }
-  }
-
-  return points;
+    return coordinates;
+  }, []);
 }
 
 function findCrossingPoints(wireA, wireB) {
-  const wireACoordinates = getCoordinatesForWire(wireA);
-  const wireBCoordinates = getCoordinatesForWire(wireB);
+  return wireA.filter(point => wireB.includes(point));
+}
 
-  return Array.from(wireACoordinates)
-    .filter(point => wireBCoordinates.has(point))
-    .reduce((lowestDistance, point) => {
-      const [x, y] = point
-        .split(",")
-        .map(coord => Math.abs(parseInt(coord, 10)));
-      const distance = x + y;
+function getTaskOneDistance(crossingPoints) {
+  return crossingPoints.reduce((lowestDistance, point) => {
+    const [x, y] = point.split(",").map(coord => Math.abs(parseInt(coord, 10)));
+    const distance = x + y;
 
-      if (!lowestDistance || distance < lowestDistance) {
-        return distance;
-      }
-      return lowestDistance;
-    }, null);
+    if (!lowestDistance || distance < lowestDistance) {
+      return distance;
+    }
+    return lowestDistance;
+  }, null);
+}
+
+function getTaskTwoDistance(crossingPoints, wireA, wireB) {
+  return Math.min(
+    ...crossingPoints.map(
+      crossingPoint =>
+        wireA.indexOf(crossingPoint) + wireB.indexOf(crossingPoint) + 2
+    )
+  );
 }
 
 const [wireA, wireB] = fs
   .readFileSync(__dirname + "/input.txt", "utf8")
   .split("\n")
-  .map(mapInputLine);
+  .map(mapInputLine)
+  .map(getCoordinatesForWire);
 
-console.log(findCrossingPoints(wireA, wireB));
+const crossingPoints = findCrossingPoints(wireA, wireB);
+
+console.log(getTaskOneDistance(crossingPoints));
+console.log(getTaskTwoDistance(crossingPoints, wireA, wireB));
