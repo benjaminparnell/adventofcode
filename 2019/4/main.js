@@ -6,10 +6,6 @@ function someDigits(password, fn) {
     .some(fn);
 }
 
-function passwordIsInRange(password, lowerLimit, upperLimit) {
-  return password >= lowerLimit && password <= upperLimit;
-}
-
 function digitsNeverDecrease(password) {
   return !someDigits(
     password,
@@ -24,20 +20,41 @@ function containsRepeatingDigit(password) {
   );
 }
 
-function passwordMeetsCriteria(password, lowerLimit, upperLimit) {
-  return (
-    password.toString().length === 6 &&
-    passwordIsInRange(password, lowerLimit, upperLimit) &&
-    digitsNeverDecrease(password) &&
-    containsRepeatingDigit(password)
+function containsRepeatingDigitPair(password) {
+  return someDigits(password, (digit, index, digits) => {
+    if (digits[index - 1] && digits[index + 1]) {
+      return (
+        digit !== digits[index - 2] &&
+        digit === digits[index - 1] &&
+        digit !== digits[index + 1]
+      );
+    } else if (digits[index - 1]) {
+      return digit === digits[index - 1] && digit !== digits[index - 2];
+    } else {
+      return false;
+    }
+  });
+}
+
+function doesNotContainRepeatingDigitGroup(password) {
+  return !someDigits(
+    password,
+    (digit, index, digits) =>
+      digit === digits[index + 1] && digit === digits[index - 1]
   );
 }
 
-function countValidPasswordsInRange(lowerLimit, upperLimit) {
+function passwordMeetsCriteria(password, criteria, lowerLimit, upperLimit) {
+  return criteria.every(criteriaFn =>
+    criteriaFn(password, lowerLimit, upperLimit)
+  );
+}
+
+function countValidPasswordsInRange(lowerLimit, upperLimit, criteria) {
   let count = 0;
 
   for (let password = lowerLimit; password <= upperLimit; password++) {
-    if (passwordMeetsCriteria(password, lowerLimit, upperLimit)) {
+    if (passwordMeetsCriteria(password, criteria, lowerLimit, upperLimit)) {
       count++;
     }
   }
@@ -45,4 +62,17 @@ function countValidPasswordsInRange(lowerLimit, upperLimit) {
   return count;
 }
 
-console.log(countValidPasswordsInRange(128392, 643281));
+// Task 1
+console.log(
+  countValidPasswordsInRange(128392, 643281, [
+    digitsNeverDecrease,
+    containsRepeatingDigit
+  ])
+);
+// Task 2
+console.log(
+  countValidPasswordsInRange(128392, 643281, [
+    digitsNeverDecrease,
+    containsRepeatingDigitPair
+  ])
+);
