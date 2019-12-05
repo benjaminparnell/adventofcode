@@ -7,6 +7,10 @@ const Opcode = {
   MULTIPLY: 2,
   INPUT: 3,
   OUTPUT: 4,
+  JUMP_IF_TRUE: 5,
+  JUMP_IF_FALSE: 6,
+  LESS_THAN: 7,
+  EQUALS: 8,
   HALT: 99
 };
 
@@ -51,52 +55,96 @@ function getValue(intcode, position, mode) {
 }
 
 function getInstructionLengthForOpcode(opcode) {
-  return opcode === Opcode.INPUT || opcode === Opcode.OUTPUT ? 2 : 4;
+  if (opcode === Opcode.INPUT || opcode === Opcode.OUTPUT) {
+    return 2;
+  }
+
+  if (opcode === Opcode.JUMP_IF_TRUE || opcode === Opcode.JUMP_IF_FALSE) {
+    return 3;
+  }
+
+  return 4;
 }
 
 function processIntcode(intcode) {
   let newIntcode = intcode.slice();
+  let currentPosition = 0;
+  let halting;
 
-  for (
-    let currentPosition = 0;
-    getOpcode(newIntcode[currentPosition]) !== Opcode.HALT;
-    currentPosition += getInstructionLengthForOpcode(
-      getOpcode(newIntcode[currentPosition])
-    )
-  ) {
+  while (!halting) {
+    let shouldAutomaticallyAdvance = true;
     const opcode = getOpcode(newIntcode[currentPosition]);
     const modes = getParamterModesForOpcode(newIntcode[currentPosition]);
+    const valueA = getValue(newIntcode, currentPosition + 1, modes[0]);
+    const valueB = getValue(newIntcode, currentPosition + 2, modes[1]);
 
     switch (opcode) {
       case Opcode.ADD: {
-        const valueA = getValue(newIntcode, currentPosition + 1, modes[0]);
-        const valueB = getValue(newIntcode, currentPosition + 2, modes[1]);
         newIntcode[newIntcode[currentPosition + 3]] = valueA + valueB;
         break;
       }
       case Opcode.MULTIPLY: {
-        const valueA = getValue(newIntcode, currentPosition + 1, modes[0]);
-        const valueB = getValue(newIntcode, currentPosition + 2, modes[1]);
         newIntcode[newIntcode[currentPosition + 3]] = valueA * valueB;
         break;
       }
       case Opcode.INPUT: {
-        newIntcode[newIntcode[currentPosition + 1]] = 1;
+        newIntcode[newIntcode[currentPosition + 1]] = 5;
         break;
       }
       case Opcode.OUTPUT: {
-        const value = getValue(newIntcode, currentPosition + 1, modes[0]);
-        console.log("OUTPUT:", value);
+        console.log("OUTPUT:", valueA);
+        break;
+      }
+      case Opcode.JUMP_IF_TRUE: {
+        if (valueA !== 0) {
+          currentPosition = valueB;
+          shouldAutomaticallyAdvance = false;
+        }
+
+        break;
+      }
+      case Opcode.JUMP_IF_FALSE: {
+        if (valueA === 0) {
+          currentPosition = valueB;
+          shouldAutomaticallyAdvance = false;
+        }
+
+        break;
+      }
+      case Opcode.LESS_THAN: {
+        if (valueA < valueB) {
+          newIntcode[newIntcode[currentPosition + 3]] = 1;
+        } else {
+          newIntcode[newIntcode[currentPosition + 3]] = 0;
+        }
+
+        break;
+      }
+      case Opcode.EQUALS: {
+        if (valueA === valueB) {
+          newIntcode[newIntcode[currentPosition + 3]] = 1;
+        } else {
+          newIntcode[newIntcode[currentPosition + 3]] = 0;
+        }
+
+        break;
+      }
+      case Opcode.HALT: {
+        halting = true;
         break;
       }
       default:
         break;
     }
+
+    if (shouldAutomaticallyAdvance) {
+      currentPosition += getInstructionLengthForOpcode(
+        getOpcode(newIntcode[currentPosition])
+      );
+    }
   }
 
   console.log("HALTING");
-
-  return newIntcode[0];
 }
 const intcode = parseIntcodeFromString(inputFile);
 processIntcode(intcode);
