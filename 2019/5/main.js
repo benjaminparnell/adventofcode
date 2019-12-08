@@ -66,9 +66,10 @@ function getInstructionLengthForOpcode(opcode) {
   return 4;
 }
 
-function processIntcode(intcode) {
+function processIntcode(intcode, inputs) {
   let newIntcode = intcode.slice();
   let currentPosition = 0;
+  let lastOutput;
   let halting;
 
   while (!halting) {
@@ -88,11 +89,11 @@ function processIntcode(intcode) {
         break;
       }
       case Opcode.INPUT: {
-        newIntcode[newIntcode[currentPosition + 1]] = 5;
+        newIntcode[newIntcode[currentPosition + 1]] = inputs.shift();
         break;
       }
       case Opcode.OUTPUT: {
-        console.log("OUTPUT:", valueA);
+        lastOutput = valueA;
         break;
       }
       case Opcode.JUMP_IF_TRUE: {
@@ -144,7 +145,13 @@ function processIntcode(intcode) {
     }
   }
 
-  console.log("HALTING");
+  return lastOutput;
 }
-const intcode = parseIntcodeFromString(inputFile);
-processIntcode(intcode);
+
+// const intcode = parseIntcodeFromString(inputFile);
+// processIntcode(intcode, [5]);
+
+module.exports = {
+  processIntcode,
+  parseIntcodeFromString
+};
