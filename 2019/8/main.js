@@ -1,12 +1,17 @@
 const fs = require("fs");
 
+const PixelColours = {
+  BLACK: 0,
+  WHITE: 1,
+  TRANSPARENT: 2
+};
+
 function parseToImage(array, width, height) {
   const image = [];
   const layerSize = width * height;
 
   for (let index = 0; index < array.length - 1; index += layerSize) {
     const layer = [];
-
     for (
       let rowIndex = index;
       rowIndex < index + layerSize;
@@ -36,6 +41,39 @@ function getLayerWithFewestZeros(image) {
   });
 }
 
+function getPixelAtCoordinate(image, x, y) {
+  return image.filter(layer => layer[y][x] !== PixelColours.TRANSPARENT)[0][y][
+    x
+  ];
+}
+
+function getFinalLayer(image) {
+  const width = image[0][0].length;
+  const height = image[0].length;
+  const finalImage = image[0].slice();
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      finalImage[y][x] = getPixelAtCoordinate(image, x, y);
+    }
+  }
+
+  return finalImage;
+}
+
+function printLayer(layer) {
+  const width = layer[0].length;
+  const height = layer.length;
+
+  for (let y = 0; y < height; y++) {
+    let row = "";
+    for (let x = 0; x < width; x++) {
+      row += ` ${layer[y][x]}`;
+    }
+    console.log(row);
+  }
+}
+
 const input = fs
   .readFileSync(__dirname + "/input.txt", "utf8")
   .split("")
@@ -46,3 +84,6 @@ const layer = getLayerWithFewestZeros(image);
 
 // Task one
 console.log(countPixelInLayer(layer, 1) * countPixelInLayer(layer, 2));
+
+// Task two
+printLayer(getFinalLayer(image));
