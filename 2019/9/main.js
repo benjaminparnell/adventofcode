@@ -196,4 +196,7 @@ function processIntcode(intcode, inputs = []) {
 }
 
 const intcode = parseIntcodeFromString(inputFile);
+// Task one
 console.log(processIntcode(intcode, [1]));
+// Task two
+console.log(processIntcode(intcode, [2]));
