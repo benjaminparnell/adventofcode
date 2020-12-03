@@ -8,22 +8,44 @@ const field = input
   .filter(Boolean)
   .map((line) => line.split(""));
 
-let outOfBonds = false;
-let x = 0;
-let y = 0;
-let treeCount = 0;
-const lineLength = field[0].length;
+const getTreesInSlope = (
+  field: string[][],
+  moveX: number,
+  moveY: number
+): number => {
+  let outOfBonds = false;
+  let x = 0;
+  let y = 0;
+  let treeCount = 0;
+  const lineLength = field[0].length;
 
-while (!outOfBonds) {
-  treeCount = field[y][x] === "#" ? treeCount + 1 : treeCount;
-  x = x + 3;
-  y++;
-  if (x > lineLength - 1) {
-    x = x - lineLength;
+  while (!outOfBonds) {
+    treeCount = field[y][x] === "#" ? treeCount + 1 : treeCount;
+    x = x + moveX;
+    y = y + moveY;
+    if (x > lineLength - 1) {
+      x = x - lineLength;
+    }
+    if (field[y] === undefined) {
+      outOfBonds = true;
+    }
   }
-  if (field[y] === undefined) {
-    outOfBonds = true;
-  }
-}
 
-console.log("Part 1:", treeCount);
+  return treeCount;
+};
+
+console.log("Part 1:", getTreesInSlope(field, 3, 1));
+
+console.log(
+  "Part 2:",
+  [
+    [1, 1],
+    [3, 1],
+    [5, 1],
+    [7, 1],
+    [1, 2],
+  ].reduce((product, [moveX, moveY]) => {
+    const trees = getTreesInSlope(field, moveX, moveY);
+    return product === 0 ? trees : product * trees;
+  }, 0)
+);
