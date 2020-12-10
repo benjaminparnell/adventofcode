@@ -36,13 +36,14 @@ const map = sortedAdapters.reduce(
   new Map<number, number>()
 );
 
-sortedAdapters.forEach((adapter) => {
+const combos = sortedAdapters.reduce((_, adapter) => {
   for (let num = 1; num < 4; num++) {
     const newAdapter = adapter + num;
     if (map.has(newAdapter)) {
       map.set(newAdapter, map.get(newAdapter) + map.get(adapter));
     }
   }
-});
+  return map.get(rating);
+}, 0);
 
-console.log("Part two:", map.get(rating));
+console.log("Part two:", combos);
