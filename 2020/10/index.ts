@@ -26,5 +26,23 @@ while (usedAdapters.length !== adapters.length) {
     }
   }
 }
+rating += 3;
 
 console.log("Part one:", differences["1"] * differences["3"]);
+
+const sortedAdapters = [0, ...adapters.sort((a, b) => a - b), rating];
+const map = sortedAdapters.reduce(
+  (memo, a) => memo.set(a, a === 0 ? 1 : 0),
+  new Map<number, number>()
+);
+
+sortedAdapters.forEach((adapter) => {
+  for (let num = 1; num < 4; num++) {
+    const newAdapter = adapter + num;
+    if (map.has(newAdapter)) {
+      map.set(newAdapter, map.get(newAdapter) + map.get(adapter));
+    }
+  }
+});
+
+console.log("Part two:", map.get(rating));
