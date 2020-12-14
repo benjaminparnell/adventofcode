@@ -1,5 +1,5 @@
 import fs from "fs";
-import path from "path";
+import path, { join } from "path";
 
 const [earliestTimestampString, busIdString] = fs
   .readFileSync(path.join(__dirname, "input.txt"), "utf-8")
@@ -44,3 +44,34 @@ const closestBusWithTime = budsIds
   );
 
 console.log("Part one:", closestBusWithTime[0] * closestBusWithTime[2]);
+
+const allBusIds = busIdString.split(",").map((id) => {
+  if (Number.isInteger(+id)) {
+    return parseInt(id, 10);
+  }
+  return id;
+});
+
+let index = 0;
+let found = false;
+
+const idsAndIndexes = budsIds.map((id) => [id, allBusIds.indexOf(id)]);
+
+console.log(idsAndIndexes.map(([id, index]) => budsIds[0] + index).join(" "));
+
+while (!found) {
+  let timestamp = index * 6_448_858_020;
+  const gaps = idsAndIndexes.map(([id, idIndex]) => {
+    return (timestamp + idIndex) % id;
+  });
+  if (gaps.every((gap) => gap === 0)) {
+    found = true;
+  } else {
+    index++;
+    if (index % 20_000_000 === 0) {
+      console.log(index);
+    }
+  }
+}
+
+console.log(index * budsIds[0]);
