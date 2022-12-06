@@ -37,21 +37,33 @@ func contains(stack []rune, needle rune) bool {
 	return false
 }
 
+func allDifferent(characters []rune) bool {
+	var newCharacters []rune
+
+	for _, c := range characters {
+		if contains(newCharacters, c) {
+			return false
+		}
+		newCharacters = append(newCharacters, c)
+	}
+
+	return true
+}
+
 func detectSequence(stack string, sequenceLength int) int {
 	count := 0
 	var characters []rune
 	for _, c := range stack {
-		if contains(characters, c) {
-			characters = nil
-		} else {
-			characters = append(characters, c)
-		}
-
-		if len(characters) == sequenceLength {
+		if len(characters) == sequenceLength && allDifferent(characters) {
 			break
+		} else if len(characters) == sequenceLength {
+			newSlice := make([]rune, sequenceLength-1)
+			copy(newSlice, characters[1:])
+			characters = newSlice
 		}
 
 		count++
+		characters = append(characters, c)
 	}
 	return count
 }
