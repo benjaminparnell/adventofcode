@@ -109,11 +109,13 @@ func main() {
 			if !isTouching(head, tail) {
 				tail.x = previousHeadX
 				tail.y = previousHeadY
-				positions[tail.toString()] = true
 			}
+
+			positions[tail.toString()] = true
 		}
 
 	}
 
 	fmt.Printf("Part one: %v\n", len(positions))
+	fmt.Printf("Part two: %v\n", len(positions))
 }
