@@ -55,7 +55,7 @@ func isTouching(a, b point) bool {
 		return true
 	}
 	// in the same position
-	if a.y == b.y && a.x == b.y {
+	if a.y == b.y && a.x == b.x {
 		return true
 	}
 	// up and right
