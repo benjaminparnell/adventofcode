@@ -37,45 +37,23 @@ func (p *point) toString() string {
 	return strconv.Itoa(p.x) + "," + strconv.Itoa(p.y)
 }
 
-func isTouching(a, b point) bool {
-	// left
-	if a.x-1 == b.x && a.y == b.y {
-		return true
-	}
-	// down
-	if a.y-1 == b.y && a.x == b.x {
-		return true
-	}
-	// right
-	if a.x+1 == b.x && a.y == b.y {
-		return true
-	}
-	// up
-	if a.y+1 == b.y && a.x == b.x {
-		return true
-	}
-	// in the same position
-	if a.y == b.y && a.x == b.x {
-		return true
-	}
-	// up and right
-	if a.y+1 == b.y && a.x+1 == b.x {
-		return true
-	}
-	// up and left
-	if a.y+1 == b.y && a.x-1 == b.x {
-		return true
-	}
-	// down and right
-	if a.y-1 == b.y && a.x+1 == b.x {
-		return true
-	}
-	// down and left
-	if a.y-1 == b.y && a.x-1 == b.x {
-		return true
+func (p *point) reset() {
+	p.x = 0
+	p.y = 0
+}
+
+func Abs(x int) int {
+	if x < 0 {
+		return -x
 	}
 
-	return false
+	return x
+}
+
+func isTouching(a, b point) bool {
+	xDiff := Abs(a.x - b.x)
+	yDiff := Abs(a.y - b.y)
+	return xDiff <= 1 && yDiff <= 1
 }
 
 func main() {
@@ -117,5 +95,60 @@ func main() {
 	}
 
 	fmt.Printf("Part one: %v\n", len(positions))
+
+	head.reset()
+	tail.reset()
+	snake := make([]point, 10)
+
+	for i := range snake {
+		snake[i] = point{0, 0}
+	}
+
+	positions = make(map[string]bool)
+
+	for _, line := range lines {
+		parts := strings.Split(line, " ")
+		direction := parts[0]
+		amount, _ := strconv.Atoi(parts[1])
+
+		for i := 0; i < amount; i++ {
+			switch direction {
+			case "L":
+				snake[0].x--
+			case "R":
+				snake[0].x++
+			case "U":
+				snake[0].y++
+			case "D":
+				snake[0].y--
+			}
+
+			for j := 1; j < len(snake); j++ {
+				head, tail := snake[j], snake[j-1]
+
+				if !isTouching(tail, head) {
+					xDiff := head.x - tail.x
+					yDiff := head.y - tail.y
+
+					if xDiff > 0 {
+						head.x--
+					} else if xDiff < 0 {
+						head.x++
+					}
+
+					if yDiff > 0 {
+						head.y--
+					} else if yDiff < 0 {
+						head.y++
+					}
+
+					snake[j] = head
+				}
+			}
+
+			positions[snake[9].toString()] = true
+		}
+	}
+
 	fmt.Printf("Part two: %v\n", len(positions))
 }
