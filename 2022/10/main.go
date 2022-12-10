@@ -9,7 +9,7 @@ import (
 )
 
 func parseFileToLines() []string {
-	file, err := os.Open("input.txt")
+	file, err := os.Open("example.txt")
 
 	if err != nil {
 		fmt.Println(err)
@@ -39,11 +39,34 @@ func isInterestingCycle(cycle int) bool {
 	return false
 }
 
+func printCrt(crt [][]string) {
+	for x := range crt {
+		for y := range crt[x] {
+			fmt.Printf(crt[x][y])
+		}
+		fmt.Printf("\n")
+	}
+}
+
+func isInSprite(spritePosition, position int) bool {
+	return spritePosition == position ||
+		spritePosition+1 == position ||
+		spritePosition-1 == position
+}
+
 func main() {
 	lines := parseFileToLines()
 	cycle := 0
 	xValue := 1
 	signalStrengths := 0
+	crt := make([][]string, 6)
+
+	for i := range crt {
+		crt[i] = make([]string, 40)
+		for j := range crt[i] {
+			crt[i][j] = "."
+		}
+	}
 
 	for _, line := range lines {
 		parts := strings.Split(line, " ")
@@ -71,5 +94,7 @@ func main() {
 
 	}
 
-	fmt.Printf("Part one:%v\n", signalStrengths)
+	fmt.Printf("Part one: %v\n", signalStrengths)
+	fmt.Println("Part two:")
+	printCrt(crt)
 }
