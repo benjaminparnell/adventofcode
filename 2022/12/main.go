@@ -88,26 +88,10 @@ func toCoord(x, y int) string {
 	return strconv.Itoa(x) + "," + strconv.Itoa(y)
 }
 
-func main() {
-	lines := parseFileToLines()
-	result := 0
-	startX := 0
-	startY := 0
-
-	grid := make([][]rune, len(lines))
-	for i, line := range lines {
-		grid[i] = make([]rune, len(line))
-		for j, character := range line {
-			grid[i][j] = character
-			if character == 'S' {
-				startX = j
-				startY = i
-			}
-		}
-	}
-
+func shortestPathFromPoint(grid [][]rune, startX, startY int) int {
 	startCoord := toCoord(startX, startY)
 	visited := map[string]int{startCoord: 0}
+	result := 0
 	var stack []pathItem = []pathItem{{x: startX, y: startY, length: 0}}
 
 	for len(stack) > 0 {
@@ -136,5 +120,43 @@ func main() {
 		stack = newStack
 	}
 
-	fmt.Printf("Part one: %v\n", result)
+	return result
+}
+
+func main() {
+	lines := parseFileToLines()
+	startX := 0
+	startY := 0
+	var points [][]int
+
+	grid := make([][]rune, len(lines))
+	for i, line := range lines {
+		grid[i] = make([]rune, len(line))
+		for j, character := range line {
+			grid[i][j] = character
+			if character == 'S' {
+				startX = j
+				startY = i
+			}
+
+			if character == 'S' || character == 'a' {
+				points = append(points, []int{j, i})
+			}
+		}
+	}
+
+	fmt.Printf("Part one: %v\n", shortestPathFromPoint(grid, startX, startY))
+
+	lowest := 0
+
+	for _, point := range points {
+		x, y := point[0], point[1]
+		result := shortestPathFromPoint(grid, x, y)
+
+		if (result < lowest || lowest == 0) && result != 0 {
+			lowest = result
+		}
+	}
+
+	fmt.Printf("Part two: %v\n", lowest)
 }
