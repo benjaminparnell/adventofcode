@@ -61,11 +61,17 @@ func parseToCard(cardInput string) card {
 
 func main() {
 	lines := parseFileToLines()
-
+	var cards []card
+	copies := make(map[int]int)
 	partOne := 0
+	partTwo := 0
+
 	for _, line := range lines {
+		cards = append(cards, parseToCard(line))
+	}
+
+	for _, card := range cards {
 		score := 0
-		card := parseToCard(line)
 
 		for _, number := range card.numbers {
 			if slices.Contains(card.winningNumbers, number) {
@@ -80,5 +86,41 @@ func main() {
 		partOne += score
 	}
 
+	for cardIndex, card := range cards {
+		score := 0
+
+		_, ok := copies[card.id]
+		if !ok {
+			copies[card.id] = 1
+		} else {
+			copies[card.id]++
+		}
+
+		winCounter := 0
+		for _, number := range card.numbers {
+			if slices.Contains(card.winningNumbers, number) {
+				winCounter++
+			}
+		}
+
+		for index := 0; index < copies[card.id]; index++ {
+			for winIndex := cardIndex + 1; winIndex <= cardIndex+winCounter; winIndex++ {
+				cardId := cards[winIndex].id
+				_, ok := copies[cardId]
+				if !ok {
+					copies[cardId] = 1
+				} else {
+					copies[cardId]++
+				}
+			}
+		}
+
+		partTwo += score
+	}
+
 	fmt.Printf("Part one: %v\n", partOne)
+	for _, value := range copies {
+		partTwo += value
+	}
+	fmt.Printf("Part two: %v\n", partTwo)
 }
